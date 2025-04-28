@@ -8,13 +8,14 @@ import com.example.lab5.Student.Dto.UpdateStudentDto;
 import com.example.lab5.Student.Service.StudentService;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.NoSuchElementException;
 
 @Path("/students")
-@Produces("application/json")
-@Consumes("application/json")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class StudentController {
 
     private final StudentService studentService = new StudentService();

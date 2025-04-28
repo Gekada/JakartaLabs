@@ -3,6 +3,7 @@ package com.example.lab5.Group.Controller;
 import com.example.lab5.Group.Dto.CreateGroupDto;
 import com.example.lab5.Group.Dto.GroupDto;
 import com.example.lab5.Group.Service.GroupService;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -36,7 +37,7 @@ public class GroupController {
     }
 
     @POST
-    public Response createGroup(CreateGroupDto createGroupDto) {
+    public Response createGroup(@Valid CreateGroupDto createGroupDto) {
         GroupDto response = groupService.createGroup(createGroupDto);
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
