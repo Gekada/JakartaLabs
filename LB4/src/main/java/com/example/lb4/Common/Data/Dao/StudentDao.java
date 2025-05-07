@@ -30,6 +30,35 @@ public class StudentDao {
                 .getResultList();
     }
 
+    public List<Student> getPageFiltered(String name, String email, String groupName, int page, int size) {
+        StringBuilder queryBuilder = new StringBuilder("SELECT s FROM Student s WHERE 1=1");
+        if (name != null && !name.isEmpty()) {
+            queryBuilder.append(" AND LOWER(s.name) LIKE LOWER(:name)");
+        }
+        if (email != null && !email.isEmpty()) {
+            queryBuilder.append(" AND LOWER(s.email) LIKE LOWER(:email)");
+        }
+        if (groupName != null && !groupName.isEmpty()) {
+            queryBuilder.append(" AND LOWER(s.group.name) LIKE LOWER(:groupName)");
+        }
+
+        TypedQuery<Student> query = em.createQuery(queryBuilder.toString(), Student.class);
+
+        if (name != null && !name.isEmpty()) {
+            query.setParameter("name", "%" + name + "%");
+        }
+        if (email != null && !email.isEmpty()) {
+            query.setParameter("email", "%" + email + "%");
+        }
+        if (groupName != null && !groupName.isEmpty()) {
+            query.setParameter("groupName", "%" + groupName + "%");
+        }
+
+        return query.setFirstResult(page * size)
+                .setMaxResults(size)
+                .getResultList();
+    }
+
     public void update(Student student) {
         em.merge(student);
     }
