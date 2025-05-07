@@ -1,0 +1,11 @@
+<persistence-unit name="DekanatPersistenceUnit" transaction-type="JTA">
+    <class>com.example.lb4.Common.Data.Entity.Group</class>
+    <class>com.example.lb4.Common.Data.Entity.Student</class>
+    <properties>
+        <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+        <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://postgres:localhost:5432/dekanat_db"/>
+        <property name="jakarta.persistence.jdbc.user" value="postgres"/>
+        <property name="jakarta.persistence.jdbc.password" value="german"/>
+        <property name="jakarta.persistence.schema-generation.database.action" value="none"/>
+    </properties>
+</persistence-unit>

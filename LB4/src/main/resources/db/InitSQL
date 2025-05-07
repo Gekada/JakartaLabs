@@ -1,0 +1,16 @@
+CREATE TABLE "group" (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE student (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    group_id INTEGER REFERENCES "group"(id) ON DELETE SET NULL
+);
+
+INSERT INTO groups (name) VALUES ('КН1'), ('КН2');
+INSERT INTO students (name, group_id, email) VALUES
+                                                   ('Іван', 1, 'ivan@gmail.com'),
+                                                   ('Петро', 2, 'petro@gmail.com');
