@@ -13,8 +13,8 @@ public class ListStudentsFilterRequestDto extends PaginatedRequest {
     @QueryParam("name")
     private String name;
 
-    @QueryParam("groupId")
-    private String groupId;
+    @QueryParam("groupName")
+    private String groupName;
 
     @QueryParam("email")
     private String email;

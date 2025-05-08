@@ -1,80 +1,73 @@
 package com.example.lab5.Student.Service;
 
-import com.example.lab5.Common.Data.Entity.Student;
-import com.example.lab5.Common.Data.Mock.GroupDao;
-import com.example.lab5.Common.Data.Mock.StudentDao;
-import com.example.lab5.Common.Dto.PaginatedResponse;
+import com.example.lb4.Common.Data.Dto.PaginatedResponse;
 import com.example.lab5.Student.Dto.CreateStudentDto;
 import com.example.lab5.Student.Dto.ListStudentsFilterRequestDto;
 import com.example.lab5.Student.Dto.StudentDto;
 import com.example.lab5.Student.Dto.UpdateStudentDto;
+import com.example.lb4.Common.Data.Dao.GroupDao;
+import com.example.lb4.Common.Data.Dao.StudentDao;
+import com.example.lb4.Common.Data.Entity.Group;
+import com.example.lb4.Common.Data.Entity.Student;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
+@RequestScoped
 public class StudentService {
 
-    private final StudentDao studentDAO = new StudentDao();
-    private final GroupDao groupDAO = new GroupDao();
+    private final StudentDao studentDAO;
+    private final GroupDao groupDAO;
+
+    @Inject
+    StudentService(StudentDao studentDAO, GroupDao groupDAO) {
+        this.studentDAO = studentDAO;
+        this.groupDAO = groupDAO;
+    }
 
     public PaginatedResponse<StudentDto> listStudents(ListStudentsFilterRequestDto filterRequestDto) {
-        List<Student> students = studentDAO.getAll();
+        PaginatedResponse<Student> paginatedStudents = studentDAO.getPageFiltered(
+                filterRequestDto.getName(),
+                filterRequestDto.getEmail(),
+                filterRequestDto.getGroupName(),
+                filterRequestDto.getPage(),
+                filterRequestDto.getSize()
+        );
 
-        if (filterRequestDto != null) {
-            students = students.stream()
-                    .filter(student -> filterRequestDto.getName() == null || student.getName().toLowerCase().contains(filterRequestDto.getName().toLowerCase()))
-                    .filter(student -> filterRequestDto.getEmail() == null || student.getEmail().toLowerCase().contains(filterRequestDto.getEmail().toLowerCase()))
-                    .filter(student -> filterRequestDto.getGroupId() == null || Objects.equals(student.getGroupId(), filterRequestDto.getGroupId()))
-                    .collect(Collectors.toList());
-        }
-
-        int page = filterRequestDto.getPage();
-        int pageSize = filterRequestDto.getSize();
-
-        int totalItems = students.size();
-        int skip = (page - 1) * pageSize;
-
-        List<Student> paginatedStudents = students.stream()
-                .skip(skip)
-                .limit(pageSize)
-                .collect(Collectors.toList());
-
-        List<StudentDto> mappedStudents = paginatedStudents.stream()
+        List<StudentDto> studentDtos = paginatedStudents.getData()
+                .stream()
                 .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+                .toList();
 
-        return new PaginatedResponse<StudentDto>(
-                mappedStudents,
-                totalItems,
-                page,
-                pageSize
+        return new PaginatedResponse<>(
+                studentDtos,
+                paginatedStudents.getTotalItems(),
+                paginatedStudents.getCurrentPage(),
+                filterRequestDto.getSize()
         );
     }
 
     public StudentDto getStudentById(Long id) {
-        Student student = studentDAO.getById(id)
-                .orElseThrow(() -> new NoSuchElementException("Student with ID " + id + " not found."));
+        Student student = studentDAO.getById(id);
 
         return mapToResponseDTO(student);
     }
 
     public StudentDto createStudent(CreateStudentDto createStudentDto) {
-        if (!groupDAO.existsById(createStudentDto.getGroupId())) {
-            throw new IllegalArgumentException("Group with ID " + createStudentDto.getGroupId() + " does not exist.");
-        }
+        Group group = groupDAO.getById(createStudentDto.getGroupId());
 
-        Student student = new Student(0, createStudentDto.getName(),
-                createStudentDto.getEmail(), createStudentDto.getGroupId());
+        Student student = new Student();
+        student.setName(createStudentDto.getName());
+        student.setEmail(createStudentDto.getEmail());
+        student.setGroup(group);
         Student createdStudent = studentDAO.create(student);
 
         return mapToResponseDTO(createdStudent);
     }
 
     public StudentDto updateStudent(UpdateStudentDto updateStudentDto) {
-        Student existingStudent = studentDAO.getById(updateStudentDto.getId())
-                .orElseThrow(() -> new NoSuchElementException("Student with ID " + updateStudentDto.getId() + " not found."));
+        Student existingStudent = studentDAO.getById(updateStudentDto.getId());
 
         if (updateStudentDto.getName() != null) {
             existingStudent.setName(updateStudentDto.getName());
@@ -85,16 +78,14 @@ public class StudentService {
         }
 
         if (updateStudentDto.getGroupId() != null) {
-            if (!groupDAO.existsById(updateStudentDto.getGroupId())) {
-                throw new IllegalArgumentException("Group with ID " + updateStudentDto.getGroupId() + " does not exist.");
-            }
+            Group group = groupDAO.getById(updateStudentDto.getGroupId());
 
-            existingStudent.setGroupId(updateStudentDto.getGroupId());
+            existingStudent.setGroup(group);
         }
 
-        Student updatedStudent = studentDAO.update(existingStudent);
+        studentDAO.update(existingStudent);
 
-        return mapToResponseDTO(updatedStudent);
+        return mapToResponseDTO(existingStudent);
     }
 
     public boolean deleteStudent(Long id) {
@@ -102,15 +93,11 @@ public class StudentService {
     }
 
     private StudentDto mapToResponseDTO(Student student) {
-        String groupName = groupDAO.getById(student.getGroupId())
-                .map(group -> group.getName())
-                .orElse("Unknown Group");
-
         return new StudentDto(
                 student.getId(),
                 student.getName(),
                 student.getEmail(),
-                groupName
+                student.getGroup().getName()
         );
     }
 }

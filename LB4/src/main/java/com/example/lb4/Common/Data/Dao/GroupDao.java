@@ -5,6 +5,7 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
@@ -44,6 +45,14 @@ public class GroupDao {
         return query.setFirstResult(page * size)
                 .setMaxResults(size)
                 .getResultList();
+    }
+
+    public Group getById(Long id) {
+        Group group = em.find(Group.class, id);
+        if (group == null) {
+            throw new EntityNotFoundException("Group with ID " + id + " not found.");
+        }
+        return group;
     }
 
     public void update(Group group) {

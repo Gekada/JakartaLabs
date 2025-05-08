@@ -1,4 +1,4 @@
-package com.example.lab5.Common.Dto;
+package com.example.lb4.Common.Data.Dto;
 
 import lombok.Data;
 

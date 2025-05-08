@@ -12,9 +12,11 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Setter
     @Column(nullable = false)
     private String name;
 
+    @Setter
     @Column
     private String email;
 
@@ -22,5 +24,4 @@ public class Student {
     @ManyToOne
     @JoinColumn(name = "group_id")
     private Group group;
-
 }

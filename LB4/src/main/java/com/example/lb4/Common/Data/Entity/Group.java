@@ -1,6 +1,7 @@
 package com.example.lb4.Common.Data.Entity;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class Group {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Setter
     @Column(nullable = false)
     private String name;
 

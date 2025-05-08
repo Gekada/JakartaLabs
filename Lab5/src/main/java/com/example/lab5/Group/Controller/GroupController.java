@@ -3,6 +3,7 @@ package com.example.lab5.Group.Controller;
 import com.example.lab5.Group.Dto.CreateGroupDto;
 import com.example.lab5.Group.Dto.GroupDto;
 import com.example.lab5.Group.Service.GroupService;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -16,7 +17,12 @@ import java.util.NoSuchElementException;
 @Consumes(MediaType.APPLICATION_JSON)
 public class GroupController {
 
-    private final GroupService groupService = new GroupService();
+    private final GroupService groupService;
+
+    @Inject
+    public GroupController(GroupService groupService) {
+        this.groupService = groupService;
+    }
 
     @GET
     public Response listGroups() {

@@ -1,17 +1,24 @@
 package com.example.lab5.Group.Service;
 
-import com.example.lab5.Common.Data.Entity.Group;
-import com.example.lab5.Common.Data.Mock.GroupDao;
 import com.example.lab5.Group.Dto.CreateGroupDto;
 import com.example.lab5.Group.Dto.GroupDto;
+import com.example.lb4.Common.Data.Dao.GroupDao;
+import com.example.lb4.Common.Data.Entity.Group;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+@RequestScoped
 public class GroupService {
 
-    private final GroupDao groupDAO = new GroupDao();
+    private final GroupDao groupDAO;
+
+    @Inject
+    public GroupService(GroupDao groupDAO) {
+        this.groupDAO = groupDAO;
+    }
 
     public List<GroupDto> listGroups() {
         return groupDAO.getAll().stream()
@@ -20,8 +27,7 @@ public class GroupService {
     }
 
     public GroupDto getGroupById(Long groupId) {
-        Group group = groupDAO.getById(groupId)
-                .orElseThrow(() -> new NoSuchElementException("Group with ID " + groupId + " not found."));
+        Group group = groupDAO.getById(groupId);
 
         return mapToResponseDTO(group);
     }
@@ -30,22 +36,21 @@ public class GroupService {
         Group group = new Group();
         group.setName(createGroupDto.getName());
 
-        Group createdGroup = groupDAO.create(group);
+        groupDAO.create(group);
 
-        return mapToResponseDTO(createdGroup);
+        return mapToResponseDTO(group);
     }
 
     public GroupDto updateGroup(Long groupId, CreateGroupDto groupUpdateDTO) {
-        Group group = groupDAO.getById(groupId)
-                .orElseThrow(() -> new NoSuchElementException("Group with ID " + groupId + " not found."));
+        Group group = groupDAO.getById(groupId);
 
         if (groupUpdateDTO.getName() != null) {
             group.setName(groupUpdateDTO.getName());
         }
 
-        Group updatedGroup = groupDAO.update(group);
+        groupDAO.update(group);
 
-        return mapToResponseDTO(updatedGroup);
+        return mapToResponseDTO(group);
     }
 
     private GroupDto mapToResponseDTO(Group group) {

@@ -1,5 +1,6 @@
 package com.example.lb4.Common.Data.Dao;
 
+import com.example.lb4.Common.Data.Dto.PaginatedResponse;
 import com.example.lb4.Common.Data.Entity.Group;
 import com.example.lb4.Common.Data.Entity.Student;
 import jakarta.ejb.Stateless;
@@ -15,8 +16,9 @@ public class StudentDao {
     @PersistenceContext
     private EntityManager em;
 
-    public void create(Student student) {
+    public Student create(Student student) {
         em.persist(student);
+        return student;
     }
 
     public Student read(Long id) {
@@ -30,45 +32,68 @@ public class StudentDao {
                 .getResultList();
     }
 
-    public List<Student> getPageFiltered(String name, String email, String groupName, int page, int size) {
+    public PaginatedResponse<Student> getPageFiltered(String name, String email, String groupName, int page, int size) {
         StringBuilder queryBuilder = new StringBuilder("SELECT s FROM Student s WHERE 1=1");
+        StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(s) FROM Student s WHERE 1=1");
+
         if (name != null && !name.isEmpty()) {
             queryBuilder.append(" AND LOWER(s.name) LIKE LOWER(:name)");
+            countQueryBuilder.append(" AND LOWER(s.name) LIKE LOWER(:name)");
         }
         if (email != null && !email.isEmpty()) {
             queryBuilder.append(" AND LOWER(s.email) LIKE LOWER(:email)");
+            countQueryBuilder.append(" AND LOWER(s.email) LIKE LOWER(:email)");
         }
         if (groupName != null && !groupName.isEmpty()) {
             queryBuilder.append(" AND LOWER(s.group.name) LIKE LOWER(:groupName)");
+            countQueryBuilder.append(" AND LOWER(s.group.name) LIKE LOWER(:groupName)");
         }
 
         TypedQuery<Student> query = em.createQuery(queryBuilder.toString(), Student.class);
+        TypedQuery<Long> countQuery = em.createQuery(countQueryBuilder.toString(), Long.class);
 
         if (name != null && !name.isEmpty()) {
             query.setParameter("name", "%" + name + "%");
+            countQuery.setParameter("name", "%" + name + "%");
         }
         if (email != null && !email.isEmpty()) {
             query.setParameter("email", "%" + email + "%");
+            countQuery.setParameter("email", "%" + email + "%");
         }
         if (groupName != null && !groupName.isEmpty()) {
             query.setParameter("groupName", "%" + groupName + "%");
+            countQuery.setParameter("groupName", "%" + groupName + "%");
         }
 
-        return query.setFirstResult(page * size)
+        int totalItems = countQuery.getSingleResult().intValue();
+
+        List<Student> data = query.setFirstResult(page * size)
                 .setMaxResults(size)
                 .getResultList();
+
+        return new PaginatedResponse<>(data, totalItems, page, size);
     }
 
     public void update(Student student) {
         em.merge(student);
     }
 
-    public void delete(Long id) {
-
+    public Student getById(Long id) {
         Student student = em.find(Student.class, id);
-        if (student != null) {
-            em.remove(student);
+        if (student == null) {
+            throw new EntityNotFoundException("Student with ID " + id + " not found");
         }
+        return student;
+    }
+
+    public boolean deleteById(Long id) {
+        Student student = this.getById(id);
+        if (student == null) {
+            return false;
+        }
+
+        em.remove(student);
+        return true;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
@@ -83,14 +108,5 @@ public class StudentDao {
         student.setGroup(newGroup);
         em.merge(student);
     }
-
-    public List<Student> searchStudents(String name, String groupName) {
-        String jpql = "SELECT s FROM Student s WHERE s.name LIKE :name OR s.group.name LIKE :gname";
-        return em.createQuery(jpql, Student.class)
-                .setParameter("name", "%" + name + "%")
-                .setParameter("gname", "%" + groupName + "%")
-                .getResultList();
-    }
-
 }
 

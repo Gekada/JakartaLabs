@@ -1,11 +1,12 @@
 package com.example.lab5.Student.Controller;
 
-import com.example.lab5.Common.Dto.PaginatedResponse;
+import com.example.lb4.Common.Data.Dto.PaginatedResponse;
 import com.example.lab5.Student.Dto.CreateStudentDto;
 import com.example.lab5.Student.Dto.ListStudentsFilterRequestDto;
 import com.example.lab5.Student.Dto.StudentDto;
 import com.example.lab5.Student.Dto.UpdateStudentDto;
 import com.example.lab5.Student.Service.StudentService;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -18,7 +19,12 @@ import java.util.NoSuchElementException;
 @Consumes(MediaType.APPLICATION_JSON)
 public class StudentController {
 
-    private final StudentService studentService = new StudentService();
+    private final StudentService studentService;
+
+    @Inject
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
 
     @GET
     public Response listStudents(@BeanParam ListStudentsFilterRequestDto filter) {
@@ -40,8 +46,8 @@ public class StudentController {
 
     @POST
     public Response createStudent(@Valid CreateStudentDto createStudentDto) {
-        studentService.createStudent(createStudentDto);
-        return Response.status(Response.Status.CREATED).build();
+        var student = studentService.createStudent(createStudentDto);
+        return Response.status(Response.Status.CREATED).entity(student).build();
     }
 
     @PUT
