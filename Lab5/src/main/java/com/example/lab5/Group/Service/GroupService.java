@@ -2,10 +2,10 @@ package com.example.lab5.Group.Service;
 
 import com.example.lab5.Group.Dto.CreateGroupDto;
 import com.example.lab5.Group.Dto.GroupDto;
-import com.example.lb4.Common.Data.Dao.GroupDao;
+import com.example.lb4.Common.Data.Dao.*;
 import com.example.lb4.Common.Data.Entity.Group;
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import org.jboss.weld.context.ejb.Ejb;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,12 +13,8 @@ import java.util.stream.Collectors;
 @RequestScoped
 public class GroupService {
 
-    private final GroupDao groupDAO;
-
-    @Inject
-    public GroupService(GroupDao groupDAO) {
-        this.groupDAO = groupDAO;
-    }
+    @Ejb
+    private GroupDao groupDAO;
 
     public List<GroupDto> listGroups() {
         return groupDAO.getAll().stream()

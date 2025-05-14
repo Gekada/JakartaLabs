@@ -10,21 +10,18 @@ import com.example.lb4.Common.Data.Dao.StudentDao;
 import com.example.lb4.Common.Data.Entity.Group;
 import com.example.lb4.Common.Data.Entity.Student;
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import org.jboss.weld.context.ejb.Ejb;
 
 import java.util.List;
 
 @RequestScoped
 public class StudentService {
 
-    private final StudentDao studentDAO;
-    private final GroupDao groupDAO;
+    @Ejb
+    private StudentDao studentDAO;
 
-    @Inject
-    StudentService(StudentDao studentDAO, GroupDao groupDAO) {
-        this.studentDAO = studentDAO;
-        this.groupDAO = groupDAO;
-    }
+    @Ejb
+    private GroupDao groupDAO;
 
     public PaginatedResponse<StudentDto> listStudents(ListStudentsFilterRequestDto filterRequestDto) {
         PaginatedResponse<Student> paginatedStudents = studentDAO.getPageFiltered(
