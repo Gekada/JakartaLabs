@@ -21,5 +21,5 @@ public class CreateStudentDto {
     private String email;
 
     @NotNull(message = "Group ID cannot be null")
-    private Long groupId;
+    private int groupId;
 }

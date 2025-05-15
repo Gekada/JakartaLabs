@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class UpdateStudentDto {
 
     @NotNull(message = "Student ID cannot be null")
-    private long id;
+    private int id;
 
     @Size(min = 2, max = 50, message = "Student name must be between 2 and 50 characters")
     private String name;
@@ -21,5 +21,5 @@ public class UpdateStudentDto {
     @Email(message = "Invalid email format")
     private String email;
 
-    private Long groupId;
+    private Integer groupId;
 }

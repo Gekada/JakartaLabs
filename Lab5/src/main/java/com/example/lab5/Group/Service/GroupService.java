@@ -2,10 +2,10 @@ package com.example.lab5.Group.Service;
 
 import com.example.lab5.Group.Dto.CreateGroupDto;
 import com.example.lab5.Group.Dto.GroupDto;
-import com.example.lb4.Common.Data.Dao.*;
+import com.example.lb4.Common.Data.Dao.GroupDao;
 import com.example.lb4.Common.Data.Entity.Group;
 import jakarta.enterprise.context.RequestScoped;
-import org.jboss.weld.context.ejb.Ejb;
+import jakarta.inject.Inject;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @RequestScoped
 public class GroupService {
 
-    @Ejb
+    @Inject
     private GroupDao groupDAO;
 
     public List<GroupDto> listGroups() {
@@ -22,7 +22,7 @@ public class GroupService {
                 .collect(Collectors.toList());
     }
 
-    public GroupDto getGroupById(Long groupId) {
+    public GroupDto getGroupById(int groupId) {
         Group group = groupDAO.getById(groupId);
 
         return mapToResponseDTO(group);
@@ -37,7 +37,7 @@ public class GroupService {
         return mapToResponseDTO(group);
     }
 
-    public GroupDto updateGroup(Long groupId, CreateGroupDto groupUpdateDTO) {
+    public GroupDto updateGroup(int groupId, CreateGroupDto groupUpdateDTO) {
         Group group = groupDAO.getById(groupId);
 
         if (groupUpdateDTO.getName() != null) {
@@ -47,6 +47,10 @@ public class GroupService {
         groupDAO.update(group);
 
         return mapToResponseDTO(group);
+    }
+
+    public void deleteGroup(int id) {
+        groupDAO.deleteById(id);
     }
 
     private GroupDto mapToResponseDTO(Group group) {

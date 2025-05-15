@@ -47,7 +47,7 @@ public class GroupDao {
                 .getResultList();
     }
 
-    public Group getById(Long id) {
+    public Group getById(int id) {
         Group group = em.find(Group.class, id);
         if (group == null) {
             throw new EntityNotFoundException("Group with ID " + id + " not found.");
@@ -59,7 +59,7 @@ public class GroupDao {
         em.merge(group);
     }
 
-    public void delete(int id) {
+    public void deleteById(int id) {
         Group group = read(id);
         if (group != null) em.remove(group);
     }

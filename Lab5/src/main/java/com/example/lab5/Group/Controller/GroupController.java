@@ -10,36 +10,26 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Path("/groups")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class GroupController {
 
-    private final GroupService groupService;
-
     @Inject
-    public GroupController(GroupService groupService) {
-        this.groupService = groupService;
-    }
+    private GroupService groupService;
 
     @GET
     public Response listGroups() {
         List<GroupDto> response = groupService.listGroups();
-
         return Response.ok(response).build();
     }
 
     @GET
     @Path("/{id}")
-    public Response getGroupById(@PathParam("id") long groupId) {
-        try {
-            GroupDto response = groupService.getGroupById(groupId);
-            return Response.ok(response).build();
-        } catch (NoSuchElementException e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
-        }
+    public Response getGroupById(@PathParam("id") int groupId) {
+        GroupDto response = groupService.getGroupById(groupId);
+        return Response.ok(response).build();
     }
 
     @POST
@@ -50,12 +40,15 @@ public class GroupController {
 
     @PUT
     @Path("/{id}")
-    public Response updateGroup(@PathParam("id") long groupId, CreateGroupDto body) {
-        try {
-            GroupDto response = groupService.updateGroup(groupId, body);
-            return Response.ok(response).build();
-        } catch (NoSuchElementException e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
-        }
+    public Response updateGroup(@PathParam("id") int groupId, CreateGroupDto body) {
+        GroupDto response = groupService.updateGroup(groupId, body);
+        return Response.ok(response).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response deleteGroupById(@PathParam("id") int id) {
+        groupService.deleteGroup(id);
+        return Response.noContent().build();
     }
 }
